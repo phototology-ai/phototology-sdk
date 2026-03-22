@@ -1,0 +1,70 @@
+import * as fs from 'fs';
+import * as path from 'path';
+
+const ENV_TEMPLATE = (apiKey: string) =>
+  `# Phototology API key
+PHOTOTOLOGY_API_KEY=${apiKey}
+`;
+
+const EXAMPLE_TEMPLATE = (isTest: boolean) =>
+  `// Run with: npx tsx --env-file=.env analyze-example.ts
+import { PhototologyClient } from '@phototology/sdk';
+${isTest ? '\n// Using test mode — responses are deterministic fixtures (zero AI cost).\n' : ''}
+const client = new PhototologyClient();
+
+async function main() {
+  const result = await client.analyze({
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Golde33443.jpg/640px-Golde33443.jpg',
+  });
+
+  console.log(JSON.stringify(result, null, 2));
+  console.log('\\nModules used:', result.usage.modulesUsed.join(', '));
+  console.log('Cost: $' + result.usage.estimatedCostUsd.toFixed(4));
+}
+
+main().catch(console.error);
+`;
+
+/**
+ * Scaffold a Phototology project in the target directory.
+ *
+ * Exported for testing — the CLI entry point calls this.
+ */
+export async function scaffold(targetDir: string, apiKey: string): Promise<void> {
+  const isTest = apiKey.startsWith('pt_test_');
+
+  fs.writeFileSync(path.join(targetDir, '.env'), ENV_TEMPLATE(apiKey));
+  fs.writeFileSync(path.join(targetDir, 'analyze-example.ts'), EXAMPLE_TEMPLATE(isTest));
+}
+
+// CLI entry point — only runs when executed directly (IIFE for CommonJS compat)
+if (require.main === module) {
+  (async () => {
+    const readline = await import('readline');
+    const rl = readline.createInterface({ input: process.stdin, output: process.stderr });
+
+    console.error('\n  Phototology — AI Vision Middleware\n');
+
+    const apiKey = process.env.PHOTOTOLOGY_API_KEY ?? await new Promise<string>((resolve) => {
+      rl.question('  API Key: ', (answer) => {
+        resolve(answer.trim());
+        rl.close();
+      });
+    });
+
+    if (!apiKey) {
+      console.error('  Error: API key is required. Set PHOTOTOLOGY_API_KEY or paste it above.');
+      process.exit(1);
+    }
+
+    await scaffold(process.cwd(), apiKey);
+
+    console.error('\n  Created:');
+    console.error('    .env                   — API key');
+    console.error('    analyze-example.ts     — Working example script');
+    console.error('\n  Next steps:');
+    console.error('    npx tsx --env-file=.env analyze-example.ts');
+    console.error('    Docs: https://api.phototology.ai/v1/docs');
+    console.error('    OpenAPI: https://api.phototology.ai/v1/openapi.json\n');
+  })();
+}
