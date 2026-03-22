@@ -69,7 +69,7 @@ export class PhototologyError extends Error {
       case 'PROVIDER_ERROR':
         return new ProviderError(message, opts);
       case 'PLAN_LIMIT_EXCEEDED':
-        return new PhototologyError(message, opts);
+        return new PlanLimitError(message, opts);
       default:
         return new PhototologyError(message, opts);
     }
@@ -118,5 +118,12 @@ export class ProviderError extends PhototologyError {
   constructor(message: string, options: PhototologyErrorOptions) {
     super(message, options);
     this.name = 'ProviderError';
+  }
+}
+
+export class PlanLimitError extends PhototologyError {
+  constructor(message: string, options: PhototologyErrorOptions) {
+    super(message, options);
+    this.name = 'PlanLimitError';
   }
 }

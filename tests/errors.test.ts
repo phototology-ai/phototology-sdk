@@ -6,6 +6,7 @@ import {
   ParseError,
   InternalError,
   ProviderError,
+  PlanLimitError,
 } from '../src/errors';
 
 describe('PhototologyError', () => {
@@ -84,6 +85,15 @@ describe('PhototologyError', () => {
       });
       expect(err).toBeInstanceOf(ProviderError);
       expect(err.retryable).toBe(true);
+    });
+
+    it('creates PlanLimitError for PLAN_LIMIT_EXCEEDED with 402 status', () => {
+      const err = PhototologyError.fromResponse(402, {
+        error: { code: 'PLAN_LIMIT_EXCEEDED', message: 'Free limit reached', retryable: false, requestId: 'req_1' },
+      });
+      expect(err).toBeInstanceOf(PlanLimitError);
+      expect(err.status).toBe(402);
+      expect(err.name).toBe('PlanLimitError');
     });
 
     it('falls back to base PhototologyError for unknown codes', () => {

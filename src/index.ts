@@ -34,4 +34,5 @@ export {
   ParseError,
   InternalError,
   ProviderError,
+  PlanLimitError,
 } from './errors';
