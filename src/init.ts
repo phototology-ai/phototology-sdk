@@ -37,8 +37,8 @@ export async function scaffold(targetDir: string, apiKey: string): Promise<void>
   fs.writeFileSync(path.join(targetDir, 'analyze-example.ts'), EXAMPLE_TEMPLATE(isTest));
 }
 
-// CLI entry point — only runs when executed directly (IIFE for CommonJS compat)
-if (require.main === module) {
+// CLI entry point — runs when loaded via bin/init.js (require.main is the bin shim, not this module)
+if (require.main?.filename?.endsWith('init.js')) {
   (async () => {
     const readline = await import('readline');
     const rl = readline.createInterface({ input: process.stdin, output: process.stderr });
