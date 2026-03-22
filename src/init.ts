@@ -64,7 +64,7 @@ if (require.main === module) {
     console.error('    analyze-example.ts     — Working example script');
     console.error('\n  Next steps:');
     console.error('    npx tsx --env-file=.env analyze-example.ts');
-    console.error('    Docs: https://api.phototology.ai/v1/docs');
-    console.error('    OpenAPI: https://api.phototology.ai/v1/openapi.json\n');
+    console.error('    Docs: https://api.phototology.com/v1/docs');
+    console.error('    OpenAPI: https://api.phototology.com/v1/openapi.json\n');
   })();
 }

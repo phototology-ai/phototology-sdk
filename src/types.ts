@@ -160,7 +160,7 @@ export interface ModulesResponse {
 export interface PhototologyClientConfig {
   /** API key (pt_live_ or pt_test_ prefix). Also reads PHOTOTOLOGY_API_KEY env. */
   apiKey?: string;
-  /** Base URL for the API. Default: https://api.phototology.ai */
+  /** Base URL for the API. Default: https://api.phototology.com */
   baseUrl?: string;
   /** Maximum number of retries on retryable errors. Default: 3 */
   maxRetries?: number;

@@ -7,7 +7,7 @@ import type {
   PhototologyClientConfig,
 } from './types';
 
-const DEFAULT_BASE_URL = 'https://api.phototology.ai';
+const DEFAULT_BASE_URL = 'https://api.phototology.com';
 const DEFAULT_MAX_RETRIES = 3;
 const DEFAULT_TIMEOUT = 60_000;
 
