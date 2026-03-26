@@ -44,7 +44,7 @@ export interface AnalyzeRequest {
   /** Multiple images. Mutually exclusive with imageUrl/imageBase64. */
   images?: ImageInput[];
 
-  /** Analysis preset (e.g. 'photo-analysis', 'vehicle-condition'). */
+  /** Analysis preset (e.g. 'full-analysis', 'vehicle-condition'). */
   preset?: string;
   /** Explicit module list (alternative to preset). */
   modules?: string[];

@@ -12,7 +12,7 @@ describe('types', () => {
     it('accepts single imageUrl with preset', () => {
       const req: AnalyzeRequest = {
         imageUrl: 'https://example.com/photo.jpg',
-        preset: 'photo-analysis',
+        preset: 'full-analysis',
       };
       expect(req.imageUrl).toBe('https://example.com/photo.jpg');
     });
@@ -150,7 +150,7 @@ describe('types', () => {
           { name: 'dating', description: 'Date estimation', category: 'temporal', outputFields: ['estimatedDate'] },
         ],
         presets: [
-          { name: 'photo-analysis', description: 'Full analysis', modules: ['dating'] },
+          { name: 'full-analysis', description: 'Full analysis', modules: ['dating'] },
         ],
       };
       expect(resp.modules[0].name).toBe('dating');

@@ -157,7 +157,7 @@ describe('PhototologyClient', () => {
     it('sends GET /v1/modules with auth header', async () => {
       const modulesResponse: ModulesResponse = {
         modules: [{ name: 'dating', description: 'Date estimation', category: 'temporal', outputFields: ['estimatedDate'] }],
-        presets: [{ name: 'photo-analysis', description: 'Full analysis', modules: ['dating'] }],
+        presets: [{ name: 'full-analysis', description: 'Full analysis', modules: ['dating'] }],
       };
       mockFetch.mockResolvedValueOnce(mockJsonResponse(200, modulesResponse));
 
@@ -171,7 +171,7 @@ describe('PhototologyClient', () => {
       expect((init?.headers as Record<string, string>)['Authorization']).toBe(`Bearer ${TEST_KEY}`);
 
       expect(result.modules[0].name).toBe('dating');
-      expect(result.presets[0].name).toBe('photo-analysis');
+      expect(result.presets[0].name).toBe('full-analysis');
     });
   });
 
