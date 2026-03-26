@@ -20,7 +20,7 @@ const client = new PhototologyClient({ apiKey: 'pt_live_...' });
 
 const result = await client.analyze({
   imageUrl: 'https://example.com/photo.jpg',
-  preset: 'photo-analysis',
+  preset: 'full-analysis',
 });
 
 console.log(result.output);           // Structured analysis data
@@ -53,10 +53,10 @@ const result = await client.analyze({
   images: [{ url: '...' }],    // or multiple images
 
   // Module selection (one of):
-  preset: 'photo-analysis',    // photo-analysis | memorial | vehicle-condition | quick-scan
+  preset: 'full-analysis',      // full-analysis | quick-scan | automobile | claims | property | ecommerce | memorial | vehicle-condition
   modules: ['dating', 'people', 'location'], // or explicit module list
   modulesAdd: ['entities'],    // add to preset
-  modulesRemove: ['quality'],  // remove from preset
+  modulesRemove: ['moderation'],  // remove from preset
 
   // Context
   context: {
