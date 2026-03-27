@@ -17,6 +17,8 @@ export type {
   ImageInput,
   PersonContext,
   VehicleContext,
+  ExtractConfig,
+  BespokeMetadata,
   ModulesResponse,
   ModuleInfo,
   PresetInfo,

@@ -52,7 +52,9 @@ export class PhototologyClient {
    * Returns a discriminated union — check `outputSchema` to narrow the output type.
    */
   async analyze(request: AnalyzeRequest): Promise<AnalyzeResponse> {
-    const response = await this.request('POST', '/v1/analyze', request);
+    // Route to v2 when bespoke extraction is requested
+    const path = request.extract ? '/v2/analyze' : '/v1/analyze';
+    const response = await this.request('POST', path, request);
     return response.json() as Promise<AnalyzeResponse>;
   }
 

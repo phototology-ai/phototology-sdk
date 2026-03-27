@@ -35,6 +35,28 @@ export interface VehicleContext {
   model?: string;
 }
 
+/** Bespoke extraction configuration for v2/analyze. */
+export interface ExtractConfig {
+  /** Natural language prompt describing what to extract. Max 500 chars. Mutually exclusive with schema/schemaId. */
+  prompt?: string;
+  /** Developer-provided JSON Schema. Mutually exclusive with prompt/schemaId. */
+  schema?: Record<string, unknown>;
+  /** Previously saved schema ID. Mutually exclusive with prompt/schema. */
+  schemaId?: string;
+}
+
+/** Bespoke metadata in the analysis response. */
+export interface BespokeMetadata {
+  /** ID of the schema used (for reuse via schemaId). */
+  schemaId: string;
+  /** How the schema was resolved. */
+  inputMode: 'prompt' | 'schema' | 'schemaId';
+  /** Whether the schema was found in cache (previously generated from same prompt). */
+  schemaCacheHit: boolean;
+  /** Number of fields in the bespoke schema. */
+  fieldCount: number;
+}
+
 /** Request body for POST /v1/analyze. */
 export interface AnalyzeRequest {
   /** Single image URL. Mutually exclusive with imageBase64 and images. */
@@ -65,6 +87,9 @@ export interface AnalyzeRequest {
     includeEmbedding?: boolean;
     includeFingerprint?: boolean;
   };
+
+  /** Bespoke extraction configuration. When present, routes to /v2/analyze. */
+  extract?: ExtractConfig;
 }
 
 /** Photo analysis output (opaque record — fields vary by modules used). */
