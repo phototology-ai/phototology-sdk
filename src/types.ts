@@ -50,7 +50,7 @@ export interface BespokeMetadata {
   /** ID of the schema used (for reuse via schemaId). */
   schemaId: string;
   /** How the schema was resolved. */
-  inputMode: 'prompt' | 'schema' | 'schemaId';
+  inputMode: 'prompt' | 'schema' | 'saved';
   /** Whether the schema was found in cache (previously generated from same prompt). */
   schemaCacheHit: boolean;
   /** Number of fields in the bespoke schema. */
