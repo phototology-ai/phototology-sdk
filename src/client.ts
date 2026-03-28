@@ -3,6 +3,8 @@ import { PhototologyError } from './errors';
 import type {
   AnalyzeRequest,
   AnalyzeResponse,
+  LookupRequest,
+  LookupResponse,
   ModulesResponse,
   PhototologyClientConfig,
 } from './types';
@@ -64,6 +66,34 @@ export class PhototologyClient {
   async modules(): Promise<ModulesResponse> {
     const response = await this.request('GET', '/v1/modules');
     return response.json() as Promise<ModulesResponse>;
+  }
+
+  /**
+   * Look up previously analyzed photos by image or hash.
+   *
+   * POST /v2/lookup when images are provided.
+   * GET /v2/lookup when sha256 or pHash is provided (fast path).
+   *
+   * Lookups are free and do not consume credits.
+   */
+  async lookup(request: LookupRequest): Promise<LookupResponse> {
+    // Use GET fast path when client provides a hash directly
+    if (request.sha256 || request.pHash) {
+      const params = new URLSearchParams();
+      if (request.sha256) params.set('sha256', request.sha256);
+      if (request.pHash) params.set('pHash', request.pHash);
+      if (request.threshold !== undefined) params.set('threshold', String(request.threshold));
+      const response = await this.request('GET', `/v2/lookup?${params.toString()}`);
+      return response.json() as Promise<LookupResponse>;
+    }
+
+    // POST path for image-based lookup
+    const response = await this.request('POST', '/v2/lookup', {
+      images: request.images,
+      images_base64: request.imagesBase64,
+      threshold: request.threshold,
+    });
+    return response.json() as Promise<LookupResponse>;
   }
 
   /** Send an authenticated request with retry and pre-emptive rate limit backoff. */

@@ -181,6 +181,52 @@ export interface ModulesResponse {
   presets: PresetInfo[];
 }
 
+/** Request for looking up a previously analyzed photo. */
+export interface LookupRequest {
+  /** Image URLs to look up. */
+  images?: string[];
+  /** Base64-encoded images to look up. */
+  imagesBase64?: string[];
+  /** SHA-256 hash for direct lookup (GET fast path). */
+  sha256?: string;
+  /** Perceptual hash for fuzzy lookup (GET fast path). */
+  pHash?: string;
+  /** Hamming distance threshold for fuzzy matching (default: 5). */
+  threshold?: number;
+}
+
+/** A single analysis record from the registry. */
+export interface AnalysisRecord {
+  analysisId: string;
+  output: Record<string, unknown>;
+  modulesUsed: string[];
+  moduleVersions: Record<string, string> | null;
+  bespokeSchemaId: string | null;
+  schemaHash: string | null;
+  provider: string;
+  creditsCharged: number;
+  createdAt: string;
+}
+
+/** Lookup result for a single image. */
+export interface LookupResult {
+  matchType: 'exact' | 'fuzzy' | 'none';
+  hammingDistance?: number;
+  analyses: AnalysisRecord[];
+}
+
+/** Lookup response from the API. */
+export interface LookupResponse {
+  object: 'lookup';
+  results: Record<string, LookupResult>;
+  meta: {
+    imagesSubmitted: number;
+    imagesMatched: number;
+    processingTimeMs: number;
+    requestId: string;
+  };
+}
+
 /** SDK client configuration. */
 export interface PhototologyClientConfig {
   /** API key (pt_live_ or pt_test_ prefix). Also reads PHOTOTOLOGY_API_KEY env. */

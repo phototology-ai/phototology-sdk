@@ -25,6 +25,10 @@ export type {
   ErrorResponse,
   PlatformErrorCode,
   PhototologyClientConfig,
+  LookupRequest,
+  LookupResponse,
+  LookupResult,
+  AnalysisRecord,
 } from './types';
 
 // Errors
