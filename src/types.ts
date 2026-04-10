@@ -10,7 +10,12 @@ export type PlatformErrorCode =
   | 'PARSE_FAILED'
   | 'PROVIDER_UNAVAILABLE'
   | 'PROVIDER_ERROR'
-  | 'INTERNAL_ERROR';
+  | 'INTERNAL_ERROR'
+  | 'SCHEMA_GENERATION_FAILED'
+  | 'SCHEMA_VALIDATION_FAILED'
+  | 'SCHEMA_NOT_FOUND'
+  | 'BESPOKE_SAFETY_BLOCKED'
+  | 'BESPOKE_EXTRACTION_FAILED';
 
 /** Image in a multi-image request. */
 export interface ImageInput {
@@ -74,6 +79,8 @@ export interface AnalyzeRequest {
   modulesAdd?: string[];
   /** Modules to remove from the preset. */
   modulesRemove?: string[];
+  /** Per-module configuration (e.g. { describe: { domain: 'automotive' } }). */
+  moduleOptions?: Record<string, Record<string, unknown>>;
 
   /** Domain context. */
   context?: {
@@ -105,6 +112,8 @@ export interface AnalyzeUsage {
   totalTokens: number;
   estimatedCostUsd: number;
   modulesUsed: string[];
+  /** Number of credits charged for this analysis. */
+  creditsCharged?: number;
 }
 
 /** Response metadata. */
