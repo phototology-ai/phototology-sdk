@@ -39,8 +39,7 @@ export async function fetchWithRetry(
         });
         if (attempt >= config.maxRetries) throw timeoutErr;
         lastError = timeoutErr;
-        const backoffMs = Math.min(500 * Math.pow(2, attempt), 8000);
-        await sleep(backoffMs);
+        await sleep(backoff(attempt));
         continue;
       }
       const networkErr = new PhototologyError(
@@ -101,9 +100,7 @@ export async function fetchWithRetry(
         }
       }
 
-      // Exponential backoff: 500ms, 1s, 2s, 4s... capped at 8s
-      const backoffMs = Math.min(500 * Math.pow(2, attempt), 8000);
-      await sleep(backoffMs);
+      await sleep(backoff(attempt));
     }
   }
 
@@ -118,4 +115,8 @@ export async function fetchWithRetry(
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function backoff(attempt: number): number {
+  return Math.min(500 * Math.pow(2, attempt), 8000);
 }
