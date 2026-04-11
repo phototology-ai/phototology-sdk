@@ -31,17 +31,27 @@ export async function fetchWithRetry(
     } catch (err) {
       clearTimeout(timeoutId);
       if (err instanceof Error && err.name === 'AbortError') {
-        throw new PhototologyError('Request timed out', {
+        const timeoutErr = new PhototologyError('Request timed out', {
           code: 'TIMEOUT',
           status: 0,
-          retryable: false,
+          retryable: true,
           requestId: 'unknown',
         });
+        if (attempt >= config.maxRetries) throw timeoutErr;
+        lastError = timeoutErr;
+        const backoffMs = Math.min(500 * Math.pow(2, attempt), 8000);
+        await sleep(backoffMs);
+        continue;
       }
-      throw new PhototologyError(
+      const networkErr = new PhototologyError(
         err instanceof Error ? err.message : 'Network error',
-        { code: 'NETWORK_ERROR', status: 0, retryable: false, requestId: 'unknown' },
+        { code: 'NETWORK_ERROR', status: 0, retryable: true, requestId: 'unknown' },
       );
+      if (attempt >= config.maxRetries) throw networkErr;
+      lastError = networkErr;
+      const backoffMs = Math.min(500 * Math.pow(2, attempt), 8000);
+      await sleep(backoffMs);
+      continue;
     } finally {
       clearTimeout(timeoutId);
     }

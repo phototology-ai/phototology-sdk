@@ -57,7 +57,7 @@ export class PhototologyClient {
     // Route to v2 when bespoke extraction is requested
     const path = request.extract ? '/v2/analyze' : '/v1/analyze';
     const response = await this.request('POST', path, request);
-    return response.json() as Promise<AnalyzeResponse>;
+    return safeJson<AnalyzeResponse>(response);
   }
 
   /**
@@ -65,7 +65,7 @@ export class PhototologyClient {
    */
   async modules(): Promise<ModulesResponse> {
     const response = await this.request('GET', '/v1/modules');
-    return response.json() as Promise<ModulesResponse>;
+    return safeJson<ModulesResponse>(response);
   }
 
   /**
@@ -84,7 +84,7 @@ export class PhototologyClient {
       if (request.pHash) params.set('pHash', request.pHash);
       if (request.threshold !== undefined) params.set('threshold', String(request.threshold));
       const response = await this.request('GET', `/v2/lookup?${params.toString()}`);
-      return response.json() as Promise<LookupResponse>;
+      return safeJson<LookupResponse>(response);
     }
 
     // POST path for image-based lookup
@@ -93,7 +93,7 @@ export class PhototologyClient {
       images_base64: request.imagesBase64,
       threshold: request.threshold,
     });
-    return response.json() as Promise<LookupResponse>;
+    return safeJson<LookupResponse>(response);
   }
 
   /** Send an authenticated request with retry and pre-emptive rate limit backoff. */
@@ -132,10 +132,23 @@ export class PhototologyClient {
       if (reset) {
         this.rateLimitResetAt = parseInt(reset, 10) * 1000; // Unix seconds → ms
       }
-    } else {
+    } else if (remaining !== null) {
       this.rateLimitResetAt = 0;
     }
 
     return response;
+  }
+}
+
+async function safeJson<T>(response: Response): Promise<T> {
+  try {
+    return await response.json() as T;
+  } catch {
+    throw new PhototologyError('Server returned non-JSON response', {
+      code: 'PARSE_FAILED',
+      status: response.status,
+      retryable: false,
+      requestId: 'unknown',
+    });
   }
 }
