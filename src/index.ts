@@ -23,6 +23,7 @@ export type {
   ModuleInfo,
   PresetInfo,
   ErrorResponse,
+  ErrorCredits,
   PlatformErrorCode,
   PhototologyClientConfig,
   LookupRequest,
@@ -41,4 +42,5 @@ export {
   InternalError,
   ProviderError,
   PlanLimitError,
+  CreditExhaustedError,
 } from './errors';

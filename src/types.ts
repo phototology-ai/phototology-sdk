@@ -159,6 +159,20 @@ export interface VehicleAnalyzeResponse extends AnalyzeResponseBase {
 /** Discriminated union — narrows output type based on outputSchema. */
 export type AnalyzeResponse = PhotoAnalyzeResponse | VehicleAnalyzeResponse;
 
+/** Credits payload attached to 402 PLAN_LIMIT_EXCEEDED responses. */
+export interface ErrorCredits {
+  /** Credits required by the request. */
+  needed: number;
+  /** Community pool balance. */
+  community: number;
+  /** Purchased pool balance. */
+  purchased: number;
+  /** community + purchased. */
+  total: number;
+  /** Days until community pool refills. Omitted when user has no community pool. */
+  resetsInDays?: number;
+}
+
 /** Standard error response from the API. */
 export interface ErrorResponse {
   error: {
@@ -166,6 +180,8 @@ export interface ErrorResponse {
     message: string;
     retryable: boolean;
     requestId: string;
+    /** Populated on 402 PLAN_LIMIT_EXCEEDED with dual-pool credit info. */
+    credits?: ErrorCredits;
   };
 }
 

@@ -68,8 +68,22 @@ export class PhototologyError extends Error {
       case 'PROVIDER_UNAVAILABLE':
       case 'PROVIDER_ERROR':
         return new ProviderError(message, opts);
-      case 'PLAN_LIMIT_EXCEEDED':
+      case 'PLAN_LIMIT_EXCEEDED': {
+        // When the API attaches a credits payload (dual-pool billing),
+        // surface a richer CreditExhaustedError subtype.
+        const credits = body.error.credits;
+        if (credits) {
+          return new CreditExhaustedError(message, {
+            ...opts,
+            creditsRequired: credits.needed,
+            communityBalance: credits.community,
+            purchasedBalance: credits.purchased,
+            totalBalance: credits.total,
+            resetsInDays: credits.resetsInDays,
+          });
+        }
         return new PlanLimitError(message, opts);
+      }
       default:
         return new PhototologyError(message, opts);
     }
@@ -125,5 +139,51 @@ export class PlanLimitError extends PhototologyError {
   constructor(message: string, options: PhototologyErrorOptions) {
     super(message, options);
     this.name = 'PlanLimitError';
+  }
+}
+
+/** Default purchase URL returned in CreditExhaustedError when none is supplied. */
+export const DEFAULT_PURCHASE_URL = 'https://phototology.com/dashboard/wallet';
+
+/** Options for constructing a CreditExhaustedError. */
+export interface CreditExhaustedErrorOptions extends PhototologyErrorOptions {
+  /** Total credits required to complete the requested analysis. */
+  creditsRequired: number;
+  /** Credits currently in the community (monthly-reset) pool. */
+  communityBalance: number;
+  /** Credits currently in the purchased (non-expiring) pool. */
+  purchasedBalance: number;
+  /** Sum of community + purchased pools. */
+  totalBalance: number;
+  /** Days until the community pool refills. Undefined when the user has no community pool. */
+  resetsInDays?: number;
+  /** URL where the caller can buy more credits. Defaults to DEFAULT_PURCHASE_URL. */
+  purchaseUrl?: string;
+}
+
+/**
+ * Thrown when the API returns 402 `PLAN_LIMIT_EXCEEDED` with credit-pool
+ * information attached to the error body.
+ *
+ * Extends `PlanLimitError` so existing handlers that catch `PlanLimitError`
+ * continue to work while new callers can branch on the richer subtype.
+ */
+export class CreditExhaustedError extends PlanLimitError {
+  readonly creditsRequired: number;
+  readonly communityBalance: number;
+  readonly purchasedBalance: number;
+  readonly totalBalance: number;
+  readonly resetsInDays?: number;
+  readonly purchaseUrl: string;
+
+  constructor(message: string, options: CreditExhaustedErrorOptions) {
+    super(message, options);
+    this.name = 'CreditExhaustedError';
+    this.creditsRequired = options.creditsRequired;
+    this.communityBalance = options.communityBalance;
+    this.purchasedBalance = options.purchasedBalance;
+    this.totalBalance = options.totalBalance;
+    this.resetsInDays = options.resetsInDays;
+    this.purchaseUrl = options.purchaseUrl ?? DEFAULT_PURCHASE_URL;
   }
 }
