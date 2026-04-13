@@ -116,12 +116,25 @@ export interface AnalyzeUsage {
   creditsCharged?: number;
 }
 
+/** Vendor of the AI model that produced the analysis. EU AI Act Art. 50 disclosure. */
+export type AnalyzeVendor = 'google' | 'openai' | 'anthropic';
+
 /** Response metadata. */
 export interface AnalyzeMeta {
   processingTimeMs: number;
   provider: string;
   promptHash: string;
   requestId: string;
+  /**
+   * EU AI Act Art. 50 transparency flag — always `true`. The `/v1/analyze`
+   * endpoint always runs a generative model, so responses are always
+   * AI-generated.
+   */
+  ai_generated: true;
+  /** Model identifier (e.g. `"gemini-2.0-flash"`, `"gpt-4o"`). */
+  model: string;
+  /** Canonical vendor of the model used. */
+  vendor: AnalyzeVendor;
 }
 
 /** Fingerprint data (when requested). */

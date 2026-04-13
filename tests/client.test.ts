@@ -38,6 +38,9 @@ const FIXTURE_RESPONSE: AnalyzeResponse = {
     provider: 'test-sandbox',
     promptHash: 'test-fixture',
     requestId: 'req_test',
+    ai_generated: true,
+    model: 'gemini-2.0-flash',
+    vendor: 'google',
   },
 };
 

@@ -62,6 +62,9 @@ describe('types', () => {
           provider: 'gemini',
           promptHash: 'abc123',
           requestId: 'req_test',
+          ai_generated: true,
+          model: 'gemini-2.0-flash',
+          vendor: 'google',
         },
       };
       if (response.outputSchema === 'photo') {
@@ -91,6 +94,9 @@ describe('types', () => {
           provider: 'gemini',
           promptHash: 'abc123',
           requestId: 'req_test',
+          ai_generated: true,
+          model: 'gemini-2.0-flash',
+          vendor: 'google',
         },
       };
       if (response.outputSchema === 'vehicle') {
@@ -120,6 +126,9 @@ describe('types', () => {
           provider: 'test-sandbox',
           promptHash: 'test',
           requestId: 'req_test',
+          ai_generated: true,
+          model: 'gemini-2.0-flash',
+          vendor: 'google',
         },
         embedding: [0.1, 0.2, 0.3],
         fingerprint: { pHash: 'a', dHash: 'b', sha256: 'c' },
