@@ -1,5 +1,12 @@
 # @phototology/sdk Changelog
 
+## 1.0.1 (2026-04-17)
+
+Metadata-only patch. No code or API changes.
+
+- `repository.url`, `homepage`, `bugs.url` now point at the public standalone mirror at `github.com/phototology-ai/phototology-sdk` instead of the private monorepo. Fixes broken Homepage and Repository links on npm and Libraries.io, and lets source-browsing crawlers index the package.
+- `SDK_VERSION` constant (User-Agent header) bumped to match `package.json`.
+
 ## 1.0.0 (2026-04-17)
 
 Registry v2 ships. Photos are persistent per API key: the second call on the same image bills zero credits for lenses already run.

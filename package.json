@@ -1,12 +1,15 @@
 {
   "name": "@phototology/sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TypeScript SDK for the Phototology AI vision API",
   "license": "MIT",
+  "homepage": "https://github.com/phototology-ai/phototology-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/phototology-ai/phototology-sdk/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nlakios/family-photo-chronology",
-    "directory": "packages/phototology-sdk"
+    "url": "git+https://github.com/phototology-ai/phototology-sdk.git"
   },
   "keywords": [
     "phototology",
