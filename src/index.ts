@@ -3,6 +3,10 @@
 // Client
 export { PhototologyClient } from './client';
 
+// Lens + preset constants (runtime values for enumeration, types for autocomplete)
+export { LENS_FIELDS, PRESET_IDS } from './lens-fields';
+export type { LensId, PresetId } from './lens-fields';
+
 // Types
 export type {
   AnalyzeRequest,

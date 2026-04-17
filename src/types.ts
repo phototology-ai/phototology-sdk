@@ -1,3 +1,5 @@
+import type { LensId, PresetId } from './lens-fields';
+
 /** Known platform error codes (matches API PlatformErrorCode). */
 export type PlatformErrorCode =
   | 'VALIDATION_FAILED'
@@ -71,14 +73,14 @@ export interface AnalyzeRequest {
   /** Multiple images. Mutually exclusive with imageUrl/imageBase64. */
   images?: ImageInput[];
 
-  /** Analysis preset (e.g. 'full-analysis', 'vehicle-condition'). */
-  preset?: string;
-  /** Explicit module list (alternative to preset). */
-  modules?: string[];
-  /** Modules to add to the preset. */
-  modulesAdd?: string[];
-  /** Modules to remove from the preset. */
-  modulesRemove?: string[];
+  /** Analysis preset. Types are loose (`string`) to tolerate preset additions; see PresetId in `@phototology/sdk/lens-fields` for the current typed list. */
+  preset?: PresetId | string;
+  /** Explicit lens list (alternative to preset). Type-narrowed to current lens IDs. */
+  modules?: LensId[];
+  /** Lenses to add to the preset. */
+  modulesAdd?: LensId[];
+  /** Lenses to remove from the preset. */
+  modulesRemove?: LensId[];
   /** Per-module configuration (e.g. { describe: { domain: 'automotive' } }). */
   moduleOptions?: Record<string, Record<string, unknown>>;
 

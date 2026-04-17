@@ -266,12 +266,46 @@ if (result.outputSchema === 'photo') {
 
 The SDK automatically retries on retryable errors (429, 502, 500 with `PARSE_FAILED`) with exponential backoff. Rate limit headers (`x-ratelimit-remaining`, `x-ratelimit-reset`) are respected for pre-emptive backoff.
 
+## Lens reference
+
+Each lens owns a set of top-level output fields. Pick lenses explicitly via `modules: [...]` to bill only for what you need. Import the `LensId` type for compile-time safety:
+
+```ts
+import type { LensId } from '@phototology/sdk';
+const lenses: LensId[] = ['dating', 'people', 'atmosphere'];
+```
+
+<!-- LENSES:START -->
+
+| Lens | Owned output fields |
+|------|---------------------|
+| `dating` | `estimatedDate`, `techAnchors`, `temporalMarkers`, `title`, `genre`, `caption`, `dateAnchors`, `season`, `holiday`, `event`, `visibleDates`, `reproduction` |
+| `people` | `physicalObservations`, `collectionDynamics`, `peopleCount` |
+| `location` | `location` |
+| `atmosphere` | `atmosphere`, `emotions`, `warmCaption`, `semanticDescription` |
+| `entities` | `entities` |
+| `accessibility` | `accessibility` |
+| `photo-quality` | `quality`, `visualFaults`, `rotation`, `documentClassification`, `scan` |
+| `text-content` | `textContent` |
+| `composition` | `composition` |
+| `moderation` | `moderation` |
+| `describe` | `describe` |
+| `condition` | `condition` |
+| `authenticity` | `authenticity` |
+| `color-palette` | `colorPalette` |
+| `automobile` | `automobile` |
+| `vehicle-condition` | `overallCondition`, `componentGrades`, `observations`, `accidentIndicators`, `photoQuality`, `missingViews`, `vehicleContext`, `photos`, `sellerSummary` |
+
+<!-- LENSES:END -->
+
+The registry is the source of truth. Runtime callers can also hit `client.modules()` to enumerate lenses + presets with descriptions.
+
 ## Links
 
 - [API Documentation](https://api.phototology.com/v1/docs)
 - [OpenAPI Spec](https://api.phototology.com/v1/openapi.json)
 - [MCP Server](https://www.npmjs.com/package/@phototology/mcp) — use Phototology from AI coding assistants
-- [GitHub](https://github.com/nlakios/family-photo-chronology/tree/main/packages/phototology-sdk)
+- [GitHub](https://github.com/phototology-ai/phototology-sdk)
 
 ## License
 
