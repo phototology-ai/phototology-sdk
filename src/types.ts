@@ -97,6 +97,13 @@ export interface AnalyzeRequest {
 
   /** Bespoke extraction configuration. When present, routes to /v2/analyze. */
   extract?: ExtractConfig;
+
+  /**
+   * Bypass the projection cache and re-run the LLM for all requested lenses.
+   * When false or omitted (default), cached lens outputs from the photo
+   * registry are reused and only missing lenses incur LLM cost.
+   */
+  refresh?: boolean;
 }
 
 /** Photo analysis output (opaque record — fields vary by modules used). */
@@ -233,24 +240,42 @@ export interface LookupRequest {
   threshold?: number;
 }
 
-/** A single analysis record from the registry. */
-export interface AnalysisRecord {
-  analysisId: string;
+/**
+ * A single lens index entry from the photo registry.
+ *
+ * Mirrors the API's `LensIndexEntry` — one entry per lens currently stored
+ * on the photo. The `eventId` points at the producing row in `lens_events`.
+ */
+export interface LensIndexEntry {
+  eventId: string;
   output: Record<string, unknown>;
-  modulesUsed: string[];
-  moduleVersions: Record<string, string> | null;
-  bespokeSchemaId: string | null;
-  schemaHash: string | null;
+  version: string;
+  producedAt: string;
+  coRunHash: string;
   provider: string;
-  creditsCharged: number;
-  createdAt: string;
+}
+
+/**
+ * Photo registry record — the persistent memory of a single photo keyed
+ * by sha256. Lens outputs are keyed by lens name (not stored as a historical
+ * array).
+ */
+export interface PhotoRecord {
+  sha256: string;
+  pHash: string;
+  dHash: string;
+  firstAnalyzedAt: string;
+  lastAnalyzedAt: string;
+  totalCreditsSpent: number;
+  analyzeCallCount: number;
+  lenses: Record<string, LensIndexEntry>;
 }
 
 /** Lookup result for a single image. */
 export interface LookupResult {
   matchType: 'exact' | 'fuzzy' | 'none';
   hammingDistance?: number;
-  analyses: AnalysisRecord[];
+  photo?: PhotoRecord;
 }
 
 /** Lookup response from the API. */

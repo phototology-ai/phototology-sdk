@@ -29,7 +29,8 @@ export type {
   LookupRequest,
   LookupResponse,
   LookupResult,
-  AnalysisRecord,
+  LensIndexEntry,
+  PhotoRecord,
 } from './types';
 
 // Errors

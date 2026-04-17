@@ -1,5 +1,5 @@
 # @phototology/sdk Development Protocol
-> **Version:** 0.2.0 | **Architecture:** Typed fetch wrapper, exponential backoff, CommonJS | **Updated:** 2026-03-25
+> **Version:** 1.0.0 | **Architecture:** Typed fetch wrapper, exponential backoff, CommonJS | **Updated:** 2026-04-17
 
 ## What This Is
 
