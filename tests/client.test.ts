@@ -56,6 +56,31 @@ describe('PhototologyClient', () => {
       expect(client).toBeDefined();
     });
 
+    it('sends the default User-Agent on every request', async () => {
+      mockFetch.mockResolvedValueOnce(mockJsonResponse(200, FIXTURE_RESPONSE));
+      const client = new PhototologyClient({ apiKey: TEST_KEY });
+      await client.analyze({ imageUrl: 'https://example.com/photo.jpg' });
+
+      const init = mockFetch.mock.calls[0][1] as RequestInit;
+      const headers = init.headers as Record<string, string>;
+      expect(headers['User-Agent']).toMatch(/^@phototology\/sdk\/\d+\.\d+\.\d+$/);
+    });
+
+    it('prepends a caller-provided userAgent to the SDK default', async () => {
+      mockFetch.mockResolvedValueOnce(mockJsonResponse(200, FIXTURE_RESPONSE));
+      const client = new PhototologyClient({
+        apiKey: TEST_KEY,
+        userAgent: '@phototology/mcp/0.1.4',
+      });
+      await client.analyze({ imageUrl: 'https://example.com/photo.jpg' });
+
+      const init = mockFetch.mock.calls[0][1] as RequestInit;
+      const headers = init.headers as Record<string, string>;
+      expect(headers['User-Agent']).toMatch(
+        /^@phototology\/mcp\/0\.1\.4 @phototology\/sdk\/\d+\.\d+\.\d+$/,
+      );
+    });
+
     it('reads apiKey from PHOTOTOLOGY_API_KEY env var', () => {
       process.env.PHOTOTOLOGY_API_KEY = TEST_KEY;
       const client = new PhototologyClient();

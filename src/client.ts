@@ -13,6 +13,12 @@ const DEFAULT_BASE_URL = 'https://api.phototology.com';
 const DEFAULT_MAX_RETRIES = 3;
 const DEFAULT_TIMEOUT = 60_000;
 
+// Bumped when a release needs to flip User-Agent reporting (see CHANGELOG).
+// Kept as a string literal rather than a package.json read so Node and edge
+// runtimes behave identically.
+const SDK_VERSION = '0.2.0';
+const DEFAULT_USER_AGENT = `@phototology/sdk/${SDK_VERSION}`;
+
 /**
  * Phototology API client.
  *
@@ -31,6 +37,7 @@ export class PhototologyClient {
   private readonly baseUrl: string;
   private readonly maxRetries: number;
   private readonly timeout: number;
+  private readonly userAgent: string;
   /** Unix ms timestamp — if set and in the future, delay until this time. */
   private rateLimitResetAt: number = 0;
 
@@ -46,6 +53,9 @@ export class PhototologyClient {
     this.baseUrl = (config?.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/, '');
     this.maxRetries = config?.maxRetries ?? DEFAULT_MAX_RETRIES;
     this.timeout = config?.timeout ?? DEFAULT_TIMEOUT;
+    this.userAgent = config?.userAgent
+      ? `${config.userAgent} ${DEFAULT_USER_AGENT}`
+      : DEFAULT_USER_AGENT;
   }
 
   /**
@@ -112,6 +122,7 @@ export class PhototologyClient {
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${this.apiKey}`,
       'Content-Type': 'application/json',
+      'User-Agent': this.userAgent,
     };
 
     const init: RequestInit = {

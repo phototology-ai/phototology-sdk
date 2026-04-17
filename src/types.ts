@@ -275,4 +275,10 @@ export interface PhototologyClientConfig {
   maxRetries?: number;
   /** Request timeout in milliseconds. Default: 60000 */
   timeout?: number;
+  /**
+   * Optional User-Agent string. Prepended to the SDK default so server-side
+   * observability can identify callers. Example: `"my-app/1.2.0"`.
+   * Final UA sent: `"<userAgent> @phototology/sdk/<version>"`.
+   */
+  userAgent?: string;
 }
