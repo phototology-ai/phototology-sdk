@@ -1,6 +1,8 @@
 # @phototology/sdk
 
-TypeScript SDK for the [Phototology](https://api.phototology.com/v1/docs) AI vision API.
+**Analyze once. Remember forever.**
+
+TypeScript SDK for [Phototology](https://api.phototology.com/v1/docs), the harness for visual intelligence. One governed layer every photo-aware agent, app, and workflow calls into. Perceptual-hash registry: second access of the same photo costs zero credits.
 
 [![npm version](https://img.shields.io/npm/v/@phototology/sdk)](https://www.npmjs.com/package/@phototology/sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
