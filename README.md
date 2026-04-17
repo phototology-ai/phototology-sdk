@@ -7,6 +7,28 @@ TypeScript SDK for [Phototology](https://api.phototology.com/v1/docs), the harne
 [![npm version](https://img.shields.io/npm/v/@phototology/sdk)](https://www.npmjs.com/package/@phototology/sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
+## Migrating from 0.2.0 to 1.0.0
+
+Registry v2 replaced the historical `analyses[]` array with a per-lens map on a single `PhotoRecord`. If you previously used `client.lookup()`:
+
+```typescript
+// 0.2.0 (old)
+const result = lookupResponse.results[sha];
+for (const analysis of result.analyses ?? []) {
+  console.log(analysis.modulesUsed, analysis.output);
+}
+
+// 1.0.0 (new)
+const result = lookupResponse.results[sha];
+if (result.photo) {
+  for (const [lensName, entry] of Object.entries(result.photo.lenses)) {
+    console.log(lensName, entry.output, entry.version, entry.producedAt);
+  }
+}
+```
+
+A photo is now a single record keyed by sha256. Each lens produces one entry and is updated in place on refresh. See the `client.lookup()` reference below.
+
 ## Install
 
 ```bash
@@ -72,6 +94,9 @@ const result = await client.analyze({
     includeEmbedding: true,     // 1408-dim vector for similarity search
     includeFingerprint: true,   // pHash, dHash, sha256
   },
+
+  // Registry v2
+  refresh: false,               // true = bypass projection cache, re-run LLM for every requested lens (billed normally)
 });
 
 result.id;                      // "ana_7f3a9c2e"
@@ -79,10 +104,56 @@ result.outputSchema;            // "photo" | "vehicle"
 result.output;                  // Structured analysis data
 result.usage.totalTokens;       // Token count
 result.usage.estimatedCostUsd;  // Cost estimate
+result.usage.creditsCharged;    // Credits billed on this call (0 on a full registry cache hit)
 result.embedding;               // number[] (if requested)
 result.fingerprint;             // { pHash, dHash, sha256 } (if requested)
 result.warnings;                // string[]
 result.meta.processingTimeMs;   // Processing time
+```
+
+#### Delta billing
+
+Phototology keys each photo to your API key by perceptual hash. The second call on the same image bills zero credits for every lens that was already run. Only lenses that are new to this photo are sent to the LLM and counted. A full cache hit returns instantly with `usage.creditsCharged === 0`.
+
+Pass `refresh: true` to force every requested lens to re-run. The call is billed normally.
+
+### `client.lookup(request)`
+
+Look up previously analyzed photos by fingerprint or image. Free, no credits charged.
+
+```typescript
+// Direct fingerprint lookup (GET fast path)
+const byHash = await client.lookup({ sha256: 'e3b0c442...' });
+
+// Or fuzzy lookup by pHash (Hamming distance)
+const byPhash = await client.lookup({ pHash: 'fc1c149afbf4c899', threshold: 5 });
+
+// Or submit one or more images (POST path)
+const byImage = await client.lookup({
+  images: ['https://example.com/photo.jpg'],
+});
+
+const record = byHash.results['e3b0c442...'];
+record.matchType;             // 'exact' | 'fuzzy' | 'none'
+record.hammingDistance;       // number (fuzzy matches only)
+record.photo;                 // PhotoRecord — omitted on 'none'
+
+if (record.photo) {
+  record.photo.sha256;
+  record.photo.firstAnalyzedAt;
+  record.photo.lastAnalyzedAt;
+  record.photo.totalCreditsSpent;
+  record.photo.analyzeCallCount;
+  record.photo.lenses;        // Record<string, LensIndexEntry>
+
+  for (const [lens, entry] of Object.entries(record.photo.lenses)) {
+    entry.output;             // Full lens output
+    entry.version;            // Lens schema version
+    entry.producedAt;         // When this lens last ran
+    entry.coRunHash;          // Stable hash of the sibling-lens set at that run
+    entry.provider;           // 'gemini' | 'openai' | 'anthropic'
+  }
+}
 ```
 
 ### `client.modules()`
@@ -174,6 +245,11 @@ import type {
   PhotoAnalyzeResponse,
   VehicleAnalyzeResponse,
   ModulesResponse,
+  LookupRequest,
+  LookupResponse,
+  LookupResult,
+  PhotoRecord,
+  LensIndexEntry,
   PhototologyClientConfig,
 } from '@phototology/sdk';
 ```
