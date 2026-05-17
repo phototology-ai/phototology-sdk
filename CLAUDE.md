@@ -1,5 +1,5 @@
 # @phototology/sdk Development Protocol
-> **Version:** 1.0.0 | **Architecture:** Typed fetch wrapper, exponential backoff, CommonJS | **Updated:** 2026-04-17
+> **Version:** 1.0.2 | **Architecture:** Typed fetch wrapper, exponential backoff, CommonJS | **Updated:** 2026-05-17
 
 ## What This Is
 
@@ -16,10 +16,12 @@ Public TypeScript SDK for the Phototology AI vision API. Consumed by external de
 
 ## Architecture
 
-Single class (`PhototologyClient`) wraps two API endpoints:
+Single class (`PhototologyClient`) wraps four API endpoints:
 
 - `client.analyze(request)` — POST `/v1/analyze`, returns discriminated union `AnalyzeResponse`
 - `client.modules()` — GET `/v1/modules`, returns modules/presets discovery
+- `client.lookup(request)` — POST `/v2/lookup` (or GET fast-path with `sha256`/`pHash`), returns the registry projection. Free.
+- `client.usage()` — GET `/v1/usage`, returns the dual-pool credit balance (`community`, `purchased`, `reserved`, `resetsInDays`). Free. Added in 1.0.2 (2026-05-17); strictly additive — no existing method signatures change.
 
 Retry logic lives in `retry.ts` (`fetchWithRetry`), called by the private `request()` method. The client tracks rate limit state in-memory via `x-ratelimit-remaining`/`x-ratelimit-reset` headers and pre-emptively backs off before the next request.
 
@@ -46,7 +48,7 @@ Retry logic lives in `retry.ts` (`fetchWithRetry`), called by the private `reque
 | Pattern | Reality |
 |---------|---------|
 | `AppError`, `Result` | Not present — SDK uses its own `PhototologyError` hierarchy |
-| `client.query()`, `client.embed()` | Only `analyze()` and `modules()` exist |
+| `client.query()`, `client.embed()` | Only `analyze()`, `modules()`, `lookup()`, and `usage()` exist |
 | `PhototologyClient.create()` factory | Use `new PhototologyClient(config?)` |
 | Default export | Named exports only — `import { PhototologyClient } from '@phototology/sdk'` |
 | `outputSchema: 'photo'` as default assumption | Always check the discriminant before reading output fields |
