@@ -167,6 +167,49 @@ const { modules, presets } = await client.modules();
 // presets: [{ name, description, modules }]
 ```
 
+> **Naming note.** On the API/SDK wire, the units are `modules` and `presets`. The official MCP server presents the same units to AI agents as `lenses` and `stacks`. The wire vocabulary will stay `modules`/`presets` for backward compatibility; the MCP rename is agent-facing only.
+
+### `client.usage()`
+
+Read the authenticated key's dual-pool credit balance. Free, no credits charged. Call this before a batch of analyze calls to warn the user, pick a cheaper subset of lenses, or surface a purchase link before hitting the out-of-credits error.
+
+```typescript
+const usage = await client.usage();
+
+usage.tier;                          // "starter" | "growth" | ...
+usage.community.balance;             // Remaining community credits
+usage.community.monthlyAllowance;    // Monthly grant (1,000 on starter)
+usage.community.referralBonus;       // Extra credits earned via referrals
+usage.community.resetsInDays;        // Days until community pool refills
+usage.purchased.balance;             // Non-expiring credits bought via packs
+usage.reserved;                      // Credits held against in-flight analyze calls
+
+// Effective spendable balance:
+const spendable =
+  usage.community.balance + usage.purchased.balance - usage.reserved;
+```
+
+Added in `@phototology/sdk@1.0.2` (2026-05-17). Strictly additive: no existing method signatures change.
+
+## Pricing
+
+- **1 credit = $0.01 = one lens run on one photo.** Stack five lenses on a photo = 5 credits = $0.05.
+- **Every account gets 1,000 community credits every month, free, no card required.** Spent first. Resets monthly. No rollover.
+- **Lookups, lens discovery, balance reads, and purchase links are always free.**
+- **Cache hits cost zero.** Re-running the same lens on the same photo returns the cached output for free.
+- **Bespoke schema extraction = 5 credits per image** (plus 1 per additional stacked lens).
+- **Moderation is free and always-on.** It is safety infrastructure, never billed.
+
+### Credit packs (all at $0.01/credit, no volume discount)
+
+| Pack | Credits | Price |
+|------|---------|-------|
+| Starter | 1,000 | $10 |
+| Pro | 10,000 | $100 |
+| Business | 100,000 | $1,000 |
+
+**First purchase doubles.** Your first pack ever credits 2x. A Starter $10 buys 2,000 credits the first time. No subscriptions; pay-as-you-go via packs only.
+
 ## Error Handling
 
 All API errors extend `PhototologyError` with typed subclasses for ergonomic catch patterns:
@@ -250,6 +293,7 @@ import type {
   LookupResult,
   PhotoRecord,
   LensIndexEntry,
+  UsageResponse,
   PhototologyClientConfig,
 } from '@phototology/sdk';
 ```
