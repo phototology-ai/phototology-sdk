@@ -26,6 +26,7 @@ export type {
   ModulesResponse,
   ModuleInfo,
   PresetInfo,
+  UsageResponse,
   ErrorResponse,
   ErrorCredits,
   PlatformErrorCode,

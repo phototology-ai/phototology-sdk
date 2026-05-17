@@ -7,6 +7,7 @@ import type {
   LookupResponse,
   ModulesResponse,
   PhototologyClientConfig,
+  UsageResponse,
 } from './types';
 
 const DEFAULT_BASE_URL = 'https://api.phototology.com';
@@ -76,6 +77,23 @@ export class PhototologyClient {
   async modules(): Promise<ModulesResponse> {
     const response = await this.request('GET', '/v1/modules');
     return safeJson<ModulesResponse>(response);
+  }
+
+  /**
+   * Fetch the authenticated key's credit balance.
+   *
+   * Free — does not bill credits. Use before a batch of analyze calls so the
+   * caller can warn the user, pick a cheaper subset of lenses, or surface a
+   * purchase link before hitting the out-of-credits error.
+   *
+   * @returns The dual-pool balance: `community.balance` (monthly free pool,
+   *   refills via `resetsInDays`), `purchased.balance` (non-expiring packs),
+   *   `reserved` (in-flight holds). Effective spendable credits =
+   *   `community.balance + purchased.balance - reserved`.
+   */
+  async usage(): Promise<UsageResponse> {
+    const response = await this.request('GET', '/v1/usage');
+    return safeJson<UsageResponse>(response);
   }
 
   /**

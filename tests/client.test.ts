@@ -203,6 +203,57 @@ describe('PhototologyClient', () => {
     });
   });
 
+  describe('usage', () => {
+    it('sends GET /v1/usage with auth header and returns the dual-pool balance', async () => {
+      const usageResponse = {
+        tier: 'starter',
+        community: { balance: 980, monthlyAllowance: 1000, resetsInDays: 14 },
+        purchased: { balance: 0 },
+        reserved: 2,
+      };
+      mockFetch.mockResolvedValueOnce(mockJsonResponse(200, usageResponse));
+
+      const client = new PhototologyClient({ apiKey: TEST_KEY, baseUrl: 'https://api.test' });
+      const result = await client.usage();
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe('https://api.test/v1/usage');
+      expect(init?.method).toBe('GET');
+      expect((init?.headers as Record<string, string>)['Authorization']).toBe(`Bearer ${TEST_KEY}`);
+
+      expect(result.tier).toBe('starter');
+      expect(result.community.balance).toBe(980);
+      expect(result.community.resetsInDays).toBe(14);
+      expect(result.purchased.balance).toBe(0);
+      expect(result.reserved).toBe(2);
+    });
+
+    it('does not send a request body for the GET', async () => {
+      mockFetch.mockResolvedValueOnce(mockJsonResponse(200, {
+        tier: 'starter',
+        community: { balance: 1000, monthlyAllowance: 1000, resetsInDays: 30 },
+        purchased: { balance: 0 },
+        reserved: 0,
+      }));
+
+      const client = new PhototologyClient({ apiKey: TEST_KEY, baseUrl: 'https://api.test' });
+      await client.usage();
+
+      const init = mockFetch.mock.calls[0][1];
+      expect(init?.body).toBeUndefined();
+    });
+
+    it('throws AuthenticationError on 401', async () => {
+      mockFetch.mockResolvedValueOnce(mockJsonResponse(401, {
+        error: { code: 'AUTH_FAILED', message: 'Invalid key', retryable: false, requestId: 'req_u1' },
+      }));
+
+      const client = new PhototologyClient({ apiKey: TEST_KEY, baseUrl: 'https://api.test' });
+      await expect(client.usage()).rejects.toThrow(AuthenticationError);
+    });
+  });
+
   describe('pre-emptive rate limit backoff', () => {
     it('delays next request when X-RateLimit-Remaining is 0', async () => {
       const resetTime = Math.floor(Date.now() / 1000) + 2; // 2 seconds from now

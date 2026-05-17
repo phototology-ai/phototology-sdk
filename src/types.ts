@@ -228,6 +228,36 @@ export interface ModulesResponse {
   presets: PresetInfo[];
 }
 
+/**
+ * Response from GET /v1/usage — the authenticated key's dual-pool credit balance.
+ *
+ * Phototology uses a dual-pool model: a `community` pool refills monthly with
+ * a tier-specific allowance (free), and a `purchased` pool of non-expiring
+ * credits bought via packs. `reserved` is the in-flight hold from running
+ * analyze calls; the effective spendable balance is
+ * `community.balance + purchased.balance - reserved`.
+ */
+export interface UsageResponse {
+  /** Plan tier (`'starter'`, `'growth'`, …). Drives the monthly allowance. */
+  tier: string;
+  community: {
+    /** Credits currently sitting in the community pool. */
+    balance: number;
+    /** Monthly grant credited at reset (e.g. 1000 for starter). */
+    monthlyAllowance: number;
+    /** Bonus credits earned via referrals. Omitted when zero. */
+    referralBonus?: number;
+    /** Days until the community pool refills with the next monthly allowance. */
+    resetsInDays: number;
+  };
+  purchased: {
+    /** Non-expiring credits bought via packs. */
+    balance: number;
+  };
+  /** Credits held against in-flight analyze calls — subtract for spendable total. */
+  reserved: number;
+}
+
 /** Request for looking up a previously analyzed photo. */
 export interface LookupRequest {
   /** Image URLs to look up. */
